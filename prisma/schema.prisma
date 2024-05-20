@@ -1,0 +1,38 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Habit {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  title     String
+  proofUrl  String?
+  status    String    @default("pending")
+  voters    Int[]     // Array de IDs dos usuários que irão votar
+  votes     Vote[]
+
+  user      User      @relation(fields: [userId], references: [id]) // Adicionando relação com User
+}
+
+model Vote {
+  id       Int    @id @default(autoincrement())
+  habitId  Int
+  userId   Int
+  valid    Boolean
+
+  habit    Habit   @relation(fields: [habitId], references: [id])
+  user     User    @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  phoneNumber String   @unique
+  habits      Habit[]
+  votes       Vote[]
+}
+
